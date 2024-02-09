@@ -1,0 +1,8 @@
+# Python virtual environment folder  
+env_server_launcher/
+
+# Config file for setting the Flask secret key
+config.py
+
+# All the Python bytecode for execution
+*.pyc
