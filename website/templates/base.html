@@ -15,7 +15,7 @@
             crossorigin="anonymous"
         />
 
-        <title> {% block title %} Default title {% endblock %} </title>
+        <title> {% block title %} Title {% endblock %} </title>
     </head>
     
     <body> 
@@ -27,14 +27,17 @@
 
             <div class="collapse navbar-collapse" id="navbar">
                 <div class="navbar-nav">
-                    <a class="nav-item nav-link" id="login" href="/login">Login</a>
-                    <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
-                    <a class="nav-item nav-link" id="register" href="/register">Register</a>
                     <a class="nav-item nav-link" id="home" href="/">Home</a>
+                    <a class="nav-item nav-link" id="login" href="/login">Login</a>
+                    <a class="nav-item nav-link" id="register" href="/register">Register</a>
+                    <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
                 </div>
             </div>
         </nav>
 
+      <div class="container">
+      {% block content %} {% endblock %}
+      </div>
 
       <script
         src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
