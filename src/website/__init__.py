@@ -21,7 +21,7 @@ def ensure_config_presence():
         pass 
     else:
         secret_key = token_hex()
-        file_content = "SECRET_APP=\'{}\'".format(secret_key)
+        file_content = "SECRET_KEY=\'{}\'".format(secret_key)
 
         with open(config_abs_path, 'w') as file_config:
             file_config.write(file_content)
