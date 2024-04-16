@@ -1,4 +1,7 @@
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, flash, redirect, url_for
+from .models import User
+from werkzeug.security import generate_password_hash, check_password_hash
+from .models import db
 
 auth = Blueprint('auth', __name__)
 
@@ -34,5 +37,8 @@ def check_register_info(request):
     elif len(password) < 7:
         flash('Passwords must have atleast 6 characters', category='error')
     else: 
-        flash('Account created!', category='success')
-        pass 
+        new_user = User(email=email, user_name=user_name, password=generate_password_hash(password, method='sha256'))
+        db.session.add(new_user)
+        db.session.commit()
+        
+        return redirect(url_for('views.home'))

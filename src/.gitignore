@@ -2,7 +2,13 @@
 env_server_launcher/
 
 # Config file for setting the Flask secret key
-config.py
+secret_configs.py
+
+# Config file for setting the location of the database
+database_configs.py
+
+# Database
+database.db
 
 # All the Python bytecode for execution
 *.pyc
