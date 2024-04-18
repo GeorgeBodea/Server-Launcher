@@ -2,24 +2,42 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import db
+from flask_login import login_user, login_required, logout_user, current_user
 
 auth = Blueprint('auth', __name__)
 
 
-@auth.route('/login')
+@auth.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template("login.html")
+    if request.method == "POST":
+        email = request.form.get('email')
+        password = request.form.get('password') 
+
+        user = User.query.filter_by(email=email).first()
+        if user:
+            if check_password_hash(user.password, password):
+                flash('Successfully logged in!', category='success')
+
+                login_user(user, remember=True)
+                return redirect(url_for('views.home'))
+            else:
+                flash('Incorrect password.', category='error')
+        else:
+            flash('Email does not exists.', category='error')
+    return render_template("login.html", user=current_user)
 
 @auth.route('/logout')
+@login_required
 def logout():
-    return render_template("logout.html")
+    logout_user()
+    return redirect(url_for('auth.login'))
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         check_register_info(request)
 
-    return render_template("register.html")
+    return render_template("register.html", user=current_user)
 
 
 def check_register_info(request):
@@ -28,7 +46,13 @@ def check_register_info(request):
     password = request.form.get('password')
     password_confirmation = request.form.get('password_confirmation')
 
-    if len(email) < 6:
+    user_by_email = User.query.filter_by(email=email).first()
+    user_by_name = User.query.filter_by(user_name=user_name).first()
+    if user_by_email:
+        flash('Email already exists!', category='error')
+    elif user_by_name:
+        flash('User name already exists!', category='error')
+    elif len(email) < 6:
         flash('Email must have at least 5 characters.', category='error')
     elif len(user_name) < 2:
         flash('User name must have at least 2 characters.', category='error')
@@ -37,8 +61,12 @@ def check_register_info(request):
     elif len(password) < 7:
         flash('Passwords must have atleast 6 characters', category='error')
     else: 
-        new_user = User(email=email, user_name=user_name, password=generate_password_hash(password, method='sha256'))
+        new_user = User(email=email, user_name=user_name, password=generate_password_hash(password))
+
         db.session.add(new_user)
         db.session.commit()
-        
+
+        login_user(new_user, remember=True)
+
+        flash('Account created!', category='success')
         return redirect(url_for('views.home'))

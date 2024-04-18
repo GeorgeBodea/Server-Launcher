@@ -1,9 +1,10 @@
 from flask import Flask 
 from .views import views
 from .auth import auth
-from .models import db
+from .models import db, User
 from pathlib import Path
 from secrets import token_hex
+from flask_login import LoginManager
 
 current_folder = Path(__file__).parent.absolute()
 
@@ -26,10 +27,22 @@ def create_app():
 
     create_database(app)
 
+    handle_login(app)
+
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
 
     return app
+
+# Login handler
+def handle_login(app):
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(id):
+        return User.query.get(int(id))
 
 # Secret config
 def ensure_config_presence():
