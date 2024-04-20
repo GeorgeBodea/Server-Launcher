@@ -35,7 +35,9 @@ def logout():
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        check_register_info(request)
+        isRegistered = check_register_info(request)
+        if isRegistered: 
+            return render_template("home.html", user=current_user)
 
     return render_template("register.html", user=current_user)
 
@@ -69,4 +71,6 @@ def check_register_info(request):
         login_user(new_user, remember=True)
 
         flash('Account created!', category='success')
-        return redirect(url_for('views.home'))
+        return True
+    
+    return False
