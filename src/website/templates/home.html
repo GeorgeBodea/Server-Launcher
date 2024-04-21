@@ -4,4 +4,37 @@
 
 {% block content %}
 <h1 align="center" > Home page </h1>
+
+<form method="POST">
+    <h3 align="center">Launch website</h3>
+
+    <div class="form-group">
+        <label for="dropDownInstanceType">Instance Type</label>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropDownInstanceTypeText" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select an option
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropDownInstanceType">
+                <a class="dropdown-item" href="#" 
+                    onclick="updateDropdownText('dropDownInstanceTypeText', 'Option 1');
+                    updateDropdownValue('selectedOptionInstanceType', 'Option 1')">Option 1</a>
+
+                <a class="dropdown-item" href="#" 
+                    onclick="updateDropdownText('dropDownInstanceTypeText', 'Option 2');
+                    updateDropdownValue('selectedOptionInstanceType', 'Option 2')">Option 2</a>
+
+                <a class="dropdown-item" href="#" 
+                    onclick="updateDropdownText('dropDownInstanceTypeText', 'Option 3');
+                    updateDropdownValue('selectedOptionInstanceType', 'Option 3')">Option 3</a>
+            </div>
+        </div>
+        <input type="hidden" id="selectedOptionInstanceType" name="selectedOptionInstanceType">
+    </div>
+
+
+    </br>
+
+    <button type="submit" class="btn btn-primary"/>Submit</button>
+
+</form>
 {% endblock %}
