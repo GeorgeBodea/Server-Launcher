@@ -3,7 +3,7 @@ from pathlib import Path
 
 current_folder = Path(__file__).parent.absolute()
 
-# Terraform scripts
+# Terraform scripts paths
 aws_instance_script = current_folder / 'aws_instance.tf' 
 
 def launch_aws_instance(instance_type):

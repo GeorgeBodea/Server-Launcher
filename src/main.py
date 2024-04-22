@@ -1,4 +1,4 @@
-from website import create_app, ensure_config_presence
+from website import create_app
 
 
 if __name__ == '__main__':

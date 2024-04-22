@@ -8,19 +8,18 @@ from flask_login import LoginManager
 
 current_folder = Path(__file__).parent.absolute()
 
-# Configs
+# Configs paths
 configs_folder = current_folder / 'configs' 
 secret_configs_path = configs_folder / 'secret_configs.py'
 db_configs_path = configs_folder / 'database_configs.py'
 
-# Database
+# Database paths
 database_path = current_folder / 'database' / 'database.db'
 
 def create_app():
     app = Flask(__name__)
     
-    ensure_config_presence()
-    app.config.from_pyfile(secret_configs_path)
+    app.config['SECRET_KEY'] = generate_secret_configs()
 
     ensure_database_config_presence()
     app.config.from_pyfile(db_configs_path)
@@ -44,18 +43,7 @@ def handle_login(app):
     def load_user(id):
         return User.query.get(int(id))
 
-# Secret config
-def ensure_config_presence():
-    if secret_configs_path.exists():
-        pass 
-    else:
-        file_content = generate_secret_configs()
-
-        with open(secret_configs_path, 'w') as file_config:
-            file_config.write(file_content)
-        
-        print("Config file has been auto-generated.")
-    
+# Secret    
 def generate_secret_configs():
     secret_token_hex = token_hex()
     secret_key = f"SECRET_KEY='{str(secret_token_hex)}'"
