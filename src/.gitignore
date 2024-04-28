@@ -15,3 +15,9 @@ database.db
 
 # Terraform plugins
 .terraform
+
+# Terraform state files
+*.tfstate
+
+# Terraform backup state files
+*.backup
