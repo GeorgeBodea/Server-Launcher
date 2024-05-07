@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from .models import User
+from .models import db, User
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import db
 from flask_login import login_user, login_required, logout_user, current_user
 
 auth = Blueprint('auth', __name__)
@@ -24,7 +23,7 @@ def login():
                 flash('Incorrect password.', category='error')
         else:
             flash('Email does not exists.', category='error')
-    return render_template("login.html", user=current_user)
+    return render_template('login.html', user=current_user)
 
 @auth.route('/logout')
 @login_required
@@ -37,9 +36,9 @@ def register():
     if request.method == 'POST':
         isRegistered = check_register_info(request)
         if isRegistered: 
-            return render_template("home.html", user=current_user)
+            return redirect(url_for('views.home'))
 
-    return render_template("register.html", user=current_user)
+    return render_template('register.html', user=current_user)
 
 
 def check_register_info(request):
