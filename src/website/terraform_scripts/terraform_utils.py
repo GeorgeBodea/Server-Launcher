@@ -40,5 +40,7 @@ def launch_aws_instance(instance_type):
         db.session.commit()
 
         flash('Instance created!', category='success')
+        
+        return private_key
     except Exception as e:
         print("Error executing Terraform:", e)
