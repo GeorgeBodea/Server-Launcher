@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %} Instance details {% endblock %}
+
+{% block content %}
+<h1 align="center" > Instance details </h1>
+<h2>List of active instances</h2>
+
+    {% for server_id in instance_aws_ids %}
+        <p>ID: {{ server_id }}</p>
+
+    {% endfor  %}
+{% endblock %}

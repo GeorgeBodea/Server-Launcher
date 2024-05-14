@@ -1,6 +1,9 @@
 import subprocess
 import paramiko
 import io
+import json
+import re
+import time
 from website.models import db, Instance
 from pathlib import Path
 from flask_login import current_user
@@ -30,17 +33,26 @@ def generate_key_pair():
 def launch_aws_instance(instance_type):
     try:
         private_key, public_key = generate_key_pair()
+        tag_refresh_value = str(int(time.time()))
 
         subprocess.run(["terraform", "init"], cwd=current_folder)
         # subprocess.run(["terraform", "plan", "-var", f"instance_type={instance_type}", "-var", f"public_key={public_key}"], check=True, cwd=current_folder)
-        subprocess.run(["terraform", "apply", "-var", f"instance_type={instance_type}", "-var", f"public_key={public_key}"], check=True, cwd=current_folder)
+        result = subprocess.run(["terraform", "apply", "-var", f"instance_type={instance_type}", "-var", f"public_key={public_key}", "-var", f"tag_refresh_value={tag_refresh_value}" , "-auto-approve"], check=True, cwd=current_folder, capture_output=True)
 
-        new_instance = Instance(user_id=current_user.id)
-        db.session.add(new_instance)
-        db.session.commit()
+        output_decoded = result.stdout.decode("utf-8")
+        instance_id_match = re.search(r'instance_id = "([^"]+)"', output_decoded)
+        instance_id = instance_id_match.group(1)
 
-        flash('Instance created!', category='success')
+        if result.returncode == 0:
+            new_instance = Instance(user_id=current_user.id, aws_instance_id=instance_id)
+            db.session.add(new_instance)
+            db.session.commit()
+            flash('Instance created!', category='success')
+
+            return private_key
+        else:
+            flash('Error creating instance', category='error')
+            return None
         
-        return private_key
     except Exception as e:
         print("Error executing Terraform:", e)

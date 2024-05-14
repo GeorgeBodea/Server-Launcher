@@ -5,6 +5,10 @@ provider "aws" {
 resource "aws_key_pair" "public_key_config" {
   key_name   = "example_key_name"
   public_key = var.public_key
+
+  lifecycle {
+    ignore_changes = [public_key]
+  }
 }
 
 data "aws_security_group" "ssh_security_group" {
@@ -17,4 +21,13 @@ resource "aws_instance" "aws_instance_config" {
   instance_type = var.instance_type
   key_name = aws_key_pair.public_key_config.key_name
   security_groups = [data.aws_security_group.ssh_security_group.name]
+
+  tags = {
+    Refresh = var.tag_refresh_value
+  }
+}
+
+output "instance_id" {
+  value = aws_instance.aws_instance_config.id
+  description = "AWS EC2 Instance Public ID"
 }
