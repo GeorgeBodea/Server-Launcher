@@ -11,6 +11,5 @@ class User(db.Model, UserMixin):
     instances = db.relationship('Instance')
 
 class Instance(db.Model): 
-    id = db.Column(db.Integer, primary_key=True)
+    aws_instance_id = db.Column(db.String(20), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    aws_instance_id = db.Column(db.String(20)) 

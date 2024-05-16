@@ -1,17 +1,12 @@
 import subprocess
 import paramiko
 import io
-import json
 import re
 import time
 from website.models import db, Instance
 from pathlib import Path
 from flask_login import current_user
 from flask import flash
-from cryptography.fernet import Fernet
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 current_folder = Path(__file__).parent.absolute()
 
@@ -44,7 +39,7 @@ def launch_aws_instance(instance_type):
         instance_id = instance_id_match.group(1)
 
         if result.returncode == 0:
-            new_instance = Instance(user_id=current_user.id, aws_instance_id=instance_id)
+            new_instance = Instance(aws_instance_id=instance_id, user_id=current_user.id)
             db.session.add(new_instance)
             db.session.commit()
             flash('Instance created!', category='success')
