@@ -51,3 +51,8 @@ def launch_aws_instance(instance_type):
         
     except Exception as e:
         print("Error executing Terraform:", e)
+
+def terminate_aws_instance(server_id):
+    instance_to_delete = Instance.query.get(server_id)
+    db.session.delete(instance_to_delete)
+    db.session.commit()

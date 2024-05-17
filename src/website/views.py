@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import login_required, current_user
-from .terraform_scripts.terraform_utils import launch_aws_instance
+from .terraform_scripts.terraform_utils import launch_aws_instance, terminate_aws_instance
 from .models import Instance, db
 
 views = Blueprint('views', __name__)
@@ -17,18 +17,17 @@ def home():
 @views.route('/instance_details', methods=['GET', 'POST'])
 @login_required
 def instance_details():
+   def get_instances_by_user():
+            instances_by_user = Instance.query.filter_by(user_id=current_user.id).all()
+            instance_aws_ids = [instance.aws_instance_id for instance in instances_by_user]
+            return instance_aws_ids
+
    if request.method == "POST":
-
         server_id = request.form.get('server_id')
-        instance_to_delete = Instance.query.get(server_id)
-        db.session.delete(instance_to_delete)
-        db.session.commit()
+        terminate_aws_instance(server_id)
 
-        instances_by_user = Instance.query.filter_by(user_id=current_user.id).all()
-        instance_aws_ids = [instance.aws_instance_id for instance in instances_by_user]
+        instances = get_instances_by_user()
+        return render_template('instances.html', user=current_user, instance_aws_ids=instances)
 
-        return render_template('instances.html', user=current_user, instance_aws_ids=instance_aws_ids)
-
-   instances_by_user = Instance.query.filter_by(user_id=current_user.id).all()
-   instance_aws_ids = [instance.aws_instance_id for instance in instances_by_user]
-   return render_template('instances.html', user=current_user, instance_aws_ids=instance_aws_ids)
+   instances = get_instances_by_user()
+   return render_template('instances.html', user=current_user, instance_aws_ids=instances)
