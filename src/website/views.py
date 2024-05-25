@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import login_required, current_user
-from .terraform_scripts.terraform_utils import launch_aws_instance, terminate_aws_instance
+from .cloud.aws_utils import launch_aws_instance, terminate_aws_instance
 from .models import Instance, db
 
 views = Blueprint('views', __name__)
