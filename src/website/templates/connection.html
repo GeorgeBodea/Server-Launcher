@@ -8,9 +8,14 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-12">
+            <p>Public IPv4 address</p>
+            <div class="input-wrapper">
+                <input type="text" value="{{ public_ip }}" id="public_ip" readonly class="form-control" style="height:50px">
+            </div>
+            
             <p>Copy this SSH private key for connecting to the instance</p>
             <div class="input-wrapper">
-            <input type="text" value="{{ private_ssh_key }}" id="private_ssh_key" readonly class="form-control" style="height:50px">
+                <input type="text" value="{{ private_ssh_key }}" id="private_ssh_key" readonly class="form-control" style="height:50px">
             </div>
         </div>
     </div>

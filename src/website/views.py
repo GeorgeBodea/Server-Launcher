@@ -1,7 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request
 from flask_login import login_required, current_user
-from .cloud.aws_utils import launch_aws_instance, terminate_aws_instance
-from .models import Instance, db
+from .cloud.aws_utils import launch_aws_instance, terminate_aws_instance, get_instances_info
 
 views = Blueprint('views', __name__)
 
@@ -12,22 +11,19 @@ def home():
         instance_type = request.form.get('selectedOptionInstanceType')
         private_ssh_key = launch_aws_instance(instance_type)
         return render_template('connection.html', user=current_user, private_ssh_key=private_ssh_key)
+    
     return render_template('home.html', user=current_user)
 
 @views.route('/instance_details', methods=['GET', 'POST'])
 @login_required
 def instance_details():
-   def get_instances_by_user():
-            instances_by_user = Instance.query.filter_by(user_id=current_user.id).all()
-            instance_aws_ids = [instance.aws_instance_id for instance in instances_by_user]
-            return instance_aws_ids
-
    if request.method == "POST":
         server_id = request.form.get('server_id')
         terminate_aws_instance(server_id)
 
-        instances = get_instances_by_user()
-        return render_template('instances.html', user=current_user, instance_aws_ids=instances)
+        # After termination, one instance is deteled and information on the instance detail page must be updated
+        instances_info = get_instances_info()
+        return render_template('instances.html', user=current_user, instances_info=instances_info)
 
-   instances = get_instances_by_user()
-   return render_template('instances.html', user=current_user, instance_aws_ids=instances)
+   instances_info = get_instances_info()
+   return render_template('instances.html', user=current_user, instances_info=instances_info)
