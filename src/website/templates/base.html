@@ -30,10 +30,9 @@
                     {% if user.is_authenticated %}
                         <a class="nav-item nav-link" id="home" href="/">Home</a>
                         <a class="nav-item nav-link" id="instances" href="/instance_details">Instance</a>
+                        <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
                         <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
-
                     {% else %}
-
                         <a class="nav-item nav-link" id="login" href="/login">Login</a>
                         <a class="nav-item nav-link" id="register" href="/register">Register</a>
                     {% endif %}

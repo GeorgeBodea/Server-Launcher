@@ -31,17 +31,22 @@ def logout():
     logout_user()
     return redirect(url_for('auth.login'))
 
+@auth.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', user=current_user)
+
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        isRegistered = check_register_info(request)
+        isRegistered = check_and_register(request)
         if isRegistered: 
             return redirect(url_for('views.home'))
 
     return render_template('register.html', user=current_user)
 
 
-def check_register_info(request):
+def check_and_register(request):
     email = request.form.get('email')
     user_name = request.form.get('user_name')
     password = request.form.get('password')

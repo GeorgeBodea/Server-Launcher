@@ -6,15 +6,14 @@
 <h1 align="center" > Instance details </h1>
 <h2>List of active instances</h2>
 
-{% set can_be_terminated = instances_info | selectattr('2', 'in', ['pending', 'running', 'stopping', 'stopped']) | list %}
-{% set cannot_be_terminated = instances_info | rejectattr('2', 'in', ['pending', 'running', 'stopping', 'stopped']) | list %}
+{% set terminable_instances = instances_info | selectattr('2', 'in', ['pending', 'running', 'stopping', 'stopped']) | list %}
+{% set already_terminated_instances = instances_info | rejectattr('2', 'in', ['pending', 'running', 'stopping', 'stopped']) | list %}
 
-
-{% if can_be_terminated %}
+{% if terminable_instances %}
     <h3 class="my-3">Instances that can be terminated</h3>
     <form method="POST">
         <div class="row">
-            {% for server_id, public_ip, state in can_be_terminated %}
+            {% for server_id, public_ip, state in terminable_instances %}
                 <div class="col-md-4 mb-4">
                     <div class="card shadow-sm border-success">
                         <div class="card-header bg-success text-white">
@@ -33,10 +32,10 @@
     </form>
 {% endif %}
 
-{% if cannot_be_terminated %}
+{% if already_terminated_instances %}
     <h3 class="my-3">Instances that cannot be terminated</h3>
     <div class="row">
-        {% for server_id, public_ip, state in cannot_be_terminated %}
+        {% for server_id, public_ip, state in already_terminated_instances %}
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm border-secondary">
                     <div class="card-header bg-secondary text-white">
@@ -51,4 +50,5 @@
         {% endfor %}
     </div>
 {% endif %}
+
 {% endblock %}
