@@ -9,8 +9,8 @@ views = Blueprint('views', __name__)
 def home():
     if request.method == "POST":
         instance_type = request.form.get('selectedOptionInstanceType')
-        private_ssh_key = launch_aws_instance(instance_type)
-        return render_template('connection.html', user=current_user, private_ssh_key=private_ssh_key)
+        instance_id, private_ssh_key = launch_aws_instance(instance_type)
+        return render_template('connection.html', user=current_user, aws_instance_id=instance_id, private_ssh_key=private_ssh_key)
     
     return render_template('home.html', user=current_user)
 

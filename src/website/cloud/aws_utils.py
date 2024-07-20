@@ -89,10 +89,10 @@ def launch_aws_instance(instance_type):
                                              email=current_user.email)
         instance_id = response['Instances'][0]['InstanceId']
 
-        if instance_id:
+        if instance_id and private_key:
             flash('Instance created!', category='success')
             print('Instance created!')
-            return private_key
+            return instance_id, private_key
         else:
             flash('Error creating an instance', category='error')
             return None

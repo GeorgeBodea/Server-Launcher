@@ -3,19 +3,19 @@
 {% block title %} Connection details {% endblock %}
 
 {% block content %}
-<h1 align="center" > Connection details </h1>
+<h1 class="text-center my-4">Connection Details</h1>
 
 <div class="container">
-    <div class="row">
-        <div class="col-lg-12">
-            <p>Public IPv4 address</p>
-            <div class="input-wrapper">
-                <input type="text" value="{{ public_ip }}" id="public_ip" readonly class="form-control" style="height:50px">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <p><strong>Instance ID</strong></p>
+            <div class="input-wrapper mb-3">
+                <input type="text" value="{{ aws_instance_id }}" id="aws_instance_id" readonly class="form-control form-control-lg">
             </div>
             
-            <p>Copy this SSH private key for connecting to the instance</p>
-            <div class="input-wrapper">
-                <input type="text" value="{{ private_ssh_key }}" id="private_ssh_key" readonly class="form-control" style="height:50px">
+            <p><strong>Copy this SSH Private Key for Connecting to the Instance</strong></p>
+            <div class="input-wrapper mb-3">
+                <input type="text" value="{{ private_ssh_key }}" id="private_ssh_key" readonly class="form-control form-control-lg">
             </div>
         </div>
     </div>
