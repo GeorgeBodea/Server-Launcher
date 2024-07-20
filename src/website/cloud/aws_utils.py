@@ -29,6 +29,10 @@ def get_instances_by_user():
             {
                 'Name': 'tag:UserId',
                 'Values': [str(current_user.id)]
+            },
+            {
+                'Name': 'tag:UserEmail',
+                'Values': [str(current_user.email)]
             }
         ]
     )
@@ -51,7 +55,7 @@ def get_instances_info():
     instances_info = [extract_info_from_instance(instance) for instance in instances] 
     return instances_info
 
-def process_ec2_configuration(instance_type, key_name, user_id):
+def process_ec2_configuration(instance_type, key_name, user_id, email):
     response = ec2_client.run_instances(
         ImageId='ami-0c93065e42589c42b',
         InstanceType=instance_type,
@@ -65,6 +69,10 @@ def process_ec2_configuration(instance_type, key_name, user_id):
                     {
                         'Key': 'UserId',
                         'Value': f'{user_id}'
+                    },
+                    {
+                        'Key': 'UserEmail',
+                        'Value': f'{email}'
                     }
                 ]
             }
@@ -75,7 +83,10 @@ def process_ec2_configuration(instance_type, key_name, user_id):
 def launch_aws_instance(instance_type):
     try:
         key_name, private_key = process_key_pair()
-        response = process_ec2_configuration(instance_type=instance_type, key_name=key_name, user_id=current_user.id)
+        response = process_ec2_configuration(instance_type=instance_type, 
+                                             key_name=key_name, 
+                                             user_id=current_user.id, 
+                                             email=current_user.email)
         instance_id = response['Instances'][0]['InstanceId']
 
         if instance_id:
