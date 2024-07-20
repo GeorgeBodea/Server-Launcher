@@ -80,7 +80,7 @@ def launch_aws_instance(instance_type):
 
         if instance_id:
             flash('Instance created!', category='success')
-            print('Deleted key pair successfuly.')
+            print('Instance created!')
             return private_key
         else:
             flash('Error creating an instance', category='error')

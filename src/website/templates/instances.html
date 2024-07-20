@@ -6,20 +6,49 @@
 <h1 align="center" > Instance details </h1>
 <h2>List of active instances</h2>
 
-<form method="POST">
-    {% for server_id, public_ip, state in instances_info %}
-        <p id="instance-server-{{ server_id }}">ID: {{ server_id }}</p> 
-        <p id="public-ip-{{ public_ip }}">Public IP: {{ public_ip }}</p>
-        <p id="state">Current state: {{ state }}</p>
+{% set can_be_terminated = instances_info | selectattr('2', 'in', ['pending', 'running', 'stopping', 'stopped']) | list %}
+{% set cannot_be_terminated = instances_info | rejectattr('2', 'in', ['pending', 'running', 'stopping', 'stopped']) | list %}
 
-        {% if state in ['pending', 'running', 'stopping', 'stopped'] %}
-            <input type="hidden" name="server_id" value="{{ server_id }}">
-            <button type="submit" id="button-server-{{ server_id }}" class="btn btn-danger"/>Delete</button>
-        {% endif %}
 
-        </br>
-        </br>
-        </br>
-    {% endfor  %}
-</form>
+{% if can_be_terminated %}
+    <h3 class="my-3">Instances that can be terminated</h3>
+    <form method="POST">
+        <div class="row">
+            {% for server_id, public_ip, state in can_be_terminated %}
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-success">
+                        <div class="card-header bg-success text-white">
+                            Instance ID: {{ server_id }}
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text"><strong>Public IP:</strong> {{ public_ip }}</p>
+                            <p class="card-text"><strong>Current state:</strong> {{ state }}</p>
+                            <input type="hidden" name="server_id" value="{{ server_id }}">
+                            <button type="submit" id="button-server-{{ server_id }}" class="btn btn-danger">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </form>
+{% endif %}
+
+{% if cannot_be_terminated %}
+    <h3 class="my-3">Instances that cannot be terminated</h3>
+    <div class="row">
+        {% for server_id, public_ip, state in cannot_be_terminated %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm border-secondary">
+                    <div class="card-header bg-secondary text-white">
+                        Instance ID: {{ server_id }}
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><strong>Public IP:</strong> {{ public_ip }}</p>
+                        <p class="card-text"><strong>Current state:</strong> {{ state }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 {% endblock %}
