@@ -3,6 +3,21 @@
 {% block title %} Profile {% endblock %}
 
 {% block content %}
-<h1 align="center" > Profile details </h1>
+<h1 align="center">Profile details</h1>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">User Profile</h4>
+                    <p><strong>User Name:</strong> {{ user.user_name }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Creation Date:</strong> {{ user.creation_date.strftime('%B %d, %Y at %I:%M %p') }} (UTC+0)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
