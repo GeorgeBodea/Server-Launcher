@@ -15,6 +15,12 @@
         crossorigin="anonymous"
         />
 
+        <style>
+            .extra-space-bottom {
+                margin-bottom: 50px; /* Adjust this value as needed */
+            }
+        </style>
+
         <title> {% block title %} Title {% endblock %} </title>
     </head>
     
@@ -67,7 +73,7 @@
        {% endwith %}
  
 
-      <div class="container">
+      <div class="container extra-space-bottom">
       {% block content %} {% endblock %}
       </div>
 

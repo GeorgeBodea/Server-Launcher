@@ -6,6 +6,7 @@ from boto3 import Session, resource
 from botocore.exceptions import ClientError
 from datetime import datetime
 from uuid import uuid4
+from time import sleep
 
 current_folder = Path(__file__).parent.absolute()
 
@@ -48,8 +49,9 @@ def get_instances_info():
     def extract_info_from_instance(instance):
         instance_id = instance['InstanceId']
         public_ip = instance.get('PublicIpAddress', None)
+        public_dns = instance.get('PublicDnsName', None)
         state = instance['State']['Name']
-        return instance_id, public_ip, state
+        return instance_id, public_ip, public_dns, state
 
     instances = get_instances_by_user()
     instances_info = [extract_info_from_instance(instance) for instance in instances] 
@@ -87,6 +89,7 @@ def launch_aws_instance(instance_type):
 
         # Create or get the existing security group for the user
         security_group_id = get_security_group_id_for_user(current_user.id, current_user.email)
+
         if not security_group_id:
             security_group_id = create_security_group(current_user.id, current_user.email)
 
@@ -100,7 +103,22 @@ def launch_aws_instance(instance_type):
         if instance_id and private_key:
             flash('Instance created!', category='success')
             print('Instance created!')
-            return instance_id, private_key
+
+            # Wait for the instance to be in a running state and to have a public IP address
+            for i in range(10): 
+                instance_info = ec2_client.describe_instances(InstanceIds=[instance_id])
+                instance = instance_info['Reservations'][0]['Instances'][0]
+                public_ip = instance.get('PublicIpAddress')
+                public_dns = instance.get('PublicDnsName')
+
+                if public_ip and public_dns:
+                    return instance_id, private_key, public_ip, public_dns
+                print("HERE")
+                sleep(0.5) 
+
+            # If the instance did not get a public IP within the waiting period
+            flash('Instance created but public IP was not assigned within the expected time.', category='warning')
+            return instance_id, private_key, None, None
         else:
             flash('Error creating an instance', category='error')
             return None
@@ -127,6 +145,7 @@ def terminate_aws_instance(server_id):
 
             # Terminating instance
             response = ec2_client.terminate_instances(InstanceIds=[server_id])
+            print('Deleted instance successfuly.')
             flash('Termination of instance has been successful.')
 
         except Exception as e:
