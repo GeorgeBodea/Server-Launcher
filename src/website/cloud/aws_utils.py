@@ -55,13 +55,14 @@ def get_instances_info():
     instances_info = [extract_info_from_instance(instance) for instance in instances] 
     return instances_info
 
-def process_ec2_configuration(instance_type, key_name, user_id, email):
+def process_ec2_configuration(instance_type, key_name, user_id, email, security_group_id):
     response = ec2_client.run_instances(
         ImageId='ami-0c93065e42589c42b',
         InstanceType=instance_type,
         KeyName=key_name,
         MinCount=1,
         MaxCount=1,
+        SecurityGroupIds=[security_group_id],
         TagSpecifications=[
             {
                 'ResourceType': 'instance',
@@ -83,10 +84,17 @@ def process_ec2_configuration(instance_type, key_name, user_id, email):
 def launch_aws_instance(instance_type):
     try:
         key_name, private_key = process_key_pair()
+
+        # Create or get the existing security group for the user
+        security_group_id = get_security_group_id_for_user(current_user.id, current_user.email)
+        if not security_group_id:
+            security_group_id = create_security_group(current_user.id, current_user.email)
+
         response = process_ec2_configuration(instance_type=instance_type, 
                                              key_name=key_name, 
                                              user_id=current_user.id, 
-                                             email=current_user.email)
+                                             email=current_user.email,
+                                             security_group_id=security_group_id)
         instance_id = response['Instances'][0]['InstanceId']
 
         if instance_id and private_key:
@@ -124,3 +132,55 @@ def terminate_aws_instance(server_id):
         except Exception as e:
             flash('Termination of instance has failed. Error occured.')
             print('An error occurred at termination of an instance: ', e)
+
+def create_security_group(user_id, user_email):
+    sg_name = f"sg_{user_id}_{user_email}"
+    try:
+        response = ec2_client.create_security_group(
+            GroupName=sg_name,
+            Description=f"Security group created!"
+        )
+        security_group_id = response['GroupId']
+
+        # Add rules to the security group (adjust ports and protocols as needed)
+        ec2_client.authorize_security_group_ingress(
+            GroupId=security_group_id,
+            IpPermissions=[
+                {
+                    'IpProtocol': 'tcp',
+                    'FromPort': 22,  # SSH
+                    'ToPort': 22,
+                    'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+                },
+                {
+                    'IpProtocol': 'tcp',
+                    'FromPort': 80,  # HTTP
+                    'ToPort': 80,
+                    'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+                },
+                {
+                    'IpProtocol': 'tcp',
+                    'FromPort': 443,  # HTTPS
+                    'ToPort': 443,
+                    'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+                }
+            ]
+        )
+
+        return security_group_id
+    except ClientError as e:
+        print(f"Error creating security group!")
+        return None
+    
+def get_security_group_id_for_user(user_id, user_email):
+    sg_name = f"sg_{user_id}_{user_email}"
+    try:
+        response = ec2_client.describe_security_groups(
+            Filters=[{'Name': 'group-name', 'Values': [sg_name]}]
+        )
+        if response['SecurityGroups']:
+            return response['SecurityGroups'][0]['GroupId']
+        return None
+    except ClientError as e:
+        print(f"Error retrieving security group: {e}")
+        return None
