@@ -78,6 +78,10 @@
       </div>
 
       <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('defaultAmiType').click();
+        });
+        
         function updateDropdownText(idDropdownText, selectedOption) {
             document.getElementById(idDropdownText).innerText = selectedOption;
         }

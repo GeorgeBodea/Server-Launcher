@@ -23,12 +23,20 @@
                 <input type="text" value="{{ aws_instance_id }}" id="aws_instance_id" readonly class="form-control form-control-lg">
             </div>
             
-            <p><strong>Copy this SSH Private Key for Connecting to the Instance</strong></p>
+            <p><strong>Example SSH Command to Connect to the Instance</strong></p>
             <div class="input-wrapper mb-3">
-                <textarea id="private_ssh_key" readonly class="form-control form-control-lg">{{ private_ssh_key }}</textarea>
+                <input type="text" value="ssh -i /path/to/your/private-key.pem {{ root }}@{{ public_ip }}" id="example_ssg_command" readonly class="form-control form-control-lg">
             </div>
         </div>
     </div>
 </div>
+
+<form id="download-form" method="post" action="{{ url_for('views.download_key') }}">
+    <input type="hidden" name="private_key" value="{{ private_ssh_key }}">
+</form>
+
+<script type="text/javascript">
+    document.getElementById('download-form').submit();
+</script>
 
 {% endblock %}

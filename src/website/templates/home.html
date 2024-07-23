@@ -31,6 +31,22 @@
         <input type="hidden" id="selectedOptionInstanceType" name="selectedOptionInstanceType">
     </div>
 
+    <br>
+
+    <div class="form-group">
+        <label for="dropDownAmiType">AMI</label>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropDownAmiTypeText" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select an option
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropDownAmiType">
+                <a class="dropdown-item" id="defaultAmiType" href="#" 
+                    onclick="updateDropdownText('dropDownAmiTypeText', 'ami-0c93065e42589c42b');
+                    updateDropdownValue('selectedOptionAmiType', 'ami-0c93065e42589c42b')">ami-0c93065e42589c42b</a>
+            </div>
+        </div>
+        <input type="hidden" id="selectedOptionAmiType" name="selectedOptionAmiType">
+    </div>
 
     </br>
 

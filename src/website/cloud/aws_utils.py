@@ -57,9 +57,9 @@ def get_instances_info():
     instances_info = [extract_info_from_instance(instance) for instance in instances] 
     return instances_info
 
-def process_ec2_configuration(instance_type, key_name, user_id, email, security_group_id):
+def process_ec2_configuration(image_id, instance_type, key_name, user_id, email, security_group_id):
     response = ec2_client.run_instances(
-        ImageId='ami-0c93065e42589c42b',
+        ImageId=image_id,
         InstanceType=instance_type,
         KeyName=key_name,
         MinCount=1,
@@ -83,7 +83,7 @@ def process_ec2_configuration(instance_type, key_name, user_id, email, security_
     )
     return response
 
-def launch_aws_instance(instance_type):
+def launch_aws_instance(image_id, instance_type):
     try:
         key_name, private_key = process_key_pair()
 
@@ -93,7 +93,8 @@ def launch_aws_instance(instance_type):
         if not security_group_id:
             security_group_id = create_security_group(current_user.id, current_user.email)
 
-        response = process_ec2_configuration(instance_type=instance_type, 
+        response = process_ec2_configuration(image_id=image_id,
+                                             instance_type=instance_type, 
                                              key_name=key_name, 
                                              user_id=current_user.id, 
                                              email=current_user.email,
@@ -113,7 +114,6 @@ def launch_aws_instance(instance_type):
 
                 if public_ip and public_dns:
                     return instance_id, private_key, public_ip, public_dns
-                print("HERE")
                 sleep(0.5) 
 
             # If the instance did not get a public IP within the waiting period
@@ -203,3 +203,7 @@ def get_security_group_id_for_user(user_id, user_email):
     except ClientError as e:
         print(f"Error retrieving security group: {e}")
         return None
+    
+def choose_root(image_id):
+    if image_id == 'ami-0c93065e42589c42b':
+        return 'alpine'
