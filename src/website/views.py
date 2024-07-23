@@ -11,15 +11,20 @@ def home():
         instance_type = request.form.get('selectedOptionInstanceType')
         image_id = request.form.get('selectedOptionAmiType')
         root_user = choose_root(image_id)
+
+        if not instance_type:
+            flash("Please select an instance type.", category="error")
+        elif not image_id:
+            flash("Please select an AMI type.", category="error")
+        else:
+            instance_id, private_ssh_key, public_ip, public_dns = launch_aws_instance(image_id, instance_type)
+            return render_template('connection.html', user=current_user, 
+                                aws_instance_id=instance_id, 
+                                private_ssh_key=private_ssh_key,
+                                public_ip=public_ip,
+                                public_dns=public_dns,
+                                root=root_user)
         
-        instance_id, private_ssh_key, public_ip, public_dns = launch_aws_instance(image_id, instance_type)
-        return render_template('connection.html', user=current_user, 
-                               aws_instance_id=instance_id, 
-                               private_ssh_key=private_ssh_key,
-                               public_ip=public_ip,
-                               public_dns=public_dns,
-                               root=root_user)
-    
     return render_template('home.html', user=current_user)
 
 @views.route('/instance_details', methods=['GET', 'POST'])
