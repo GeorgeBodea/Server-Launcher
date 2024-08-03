@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, Response
 from flask_login import login_required, current_user
-from .cloud.aws_utils import launch_aws_instance, terminate_aws_instance, get_instances_info, choose_root
+from .cloud.aws_utils import launch_aws_instance, terminate_aws_instance, get_instances_info, choose_root, get_game_server_details
 
 views = Blueprint('views', __name__)
 
@@ -18,14 +18,38 @@ def home():
             flash("Please select an AMI type.", category="error")
         else:
             instance_id, private_ssh_key, public_ip, public_dns = launch_aws_instance(image_id, instance_type)
-            return render_template('connection.html', user=current_user, 
-                                aws_instance_id=instance_id, 
-                                private_ssh_key=private_ssh_key,
-                                public_ip=public_ip,
-                                public_dns=public_dns,
-                                root=root_user)
+            return render_template('connection.html', 
+                                    user=current_user, 
+                                    aws_instance_id=instance_id, 
+                                    private_ssh_key=private_ssh_key,
+                                    public_ip=public_ip,
+                                    public_dns=public_dns,
+                                    root=root_user)
         
     return render_template('home.html', user=current_user)
+
+@views.route('/launch_game_server', methods=['GET', 'POST'])
+@login_required
+def launch_game_server():
+    if request.method == "POST":
+        game = request.form.get('selectedGame')
+
+        if not game:
+            flash("Please select a game server type.", category="error")
+        else:
+            image_id, instance_type = get_game_server_details(game)
+            root_user = choose_root(image_id)
+
+            instance_id, private_ssh_key, public_ip, public_dns = launch_aws_instance(image_id, instance_type)
+            return render_template('connection.html', 
+                                   user=current_user, 
+                                   aws_instance_id=instance_id, 
+                                   private_ssh_key=private_ssh_key,
+                                   public_ip=public_ip,
+                                   public_dns=public_dns,
+                                   root_user=root_user)
+        
+    return render_template('game_servers.html', user=current_user)
 
 @views.route('/instance_details', methods=['GET', 'POST'])
 @login_required

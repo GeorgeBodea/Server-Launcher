@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %} Game Server {% endblock %}
+
+{% block content %}
+<h1 align="center">Launch Game Server</h1>
+
+<form method="POST">
+
+    <div class="form-group">
+        <label for="gameDropdown">Select Game</label>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="gameDropdownText" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select a game
+            </button>
+            <div class="dropdown-menu" aria-labelledby="gameDropdown">
+                <a class="dropdown-item" href="#" 
+                    onclick="updateDropdownText('gameDropdownText', 'Counter Strike 1.6');
+                    updateDropdownValue('selectedGame', 'cs16')">Counter Strike 1.6</a>
+            </div>
+        </div>
+        <input type="hidden" id="selectedGame" name="selectedGame">
+    </div>
+
+    </br>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+</form>
+{% endblock %}
