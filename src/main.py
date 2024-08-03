@@ -1,4 +1,4 @@
-from website import create_app
+from website.setup_app import create_app
 
 
 if __name__ == '__main__':
