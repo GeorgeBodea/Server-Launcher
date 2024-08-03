@@ -51,7 +51,6 @@ def generate_secret_configs():
 
     return content  
     
-
 # Database 
 def ensure_database_config_presence():
     if database_path.exists():

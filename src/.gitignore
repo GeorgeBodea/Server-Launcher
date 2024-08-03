@@ -12,12 +12,3 @@ database.db
 
 # All the Python bytecode for execution
 *.pyc
-
-# Terraform plugins
-.terraform
-
-# Terraform state files
-*.tfstate
-
-# Terraform backup state files
-*.backup
