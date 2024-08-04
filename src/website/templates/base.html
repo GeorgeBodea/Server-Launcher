@@ -79,9 +79,6 @@
       </div>
 
       <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('defaultAmiType').click();
-        });
         
         function updateDropdownText(idDropdownText, selectedOption) {
             document.getElementById(idDropdownText).innerText = selectedOption;
@@ -90,11 +87,14 @@
         function updateDropdownValue(idDropdown,selectedOption) {
             document.getElementById(idDropdown).value = selectedOption;
         }
+
+        function updateComponentTextAndValue(idDropdownText, idDropdown, selectedOption) {
+            document.getElementById(idDropdownText).innerText = selectedOption;
+            document.getElementById(idDropdown).value = selectedOption;
+        }
+
       </script>
 
-      <script type="text/javascript">
-            document.getElementById('download-form').submit();
-      </script>
 
       <script
         src="https://code.jquery.com/jquery-3.2.1.slim.min.js"

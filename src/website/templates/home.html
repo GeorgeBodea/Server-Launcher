@@ -15,16 +15,13 @@
             </button>
             <div class="dropdown-menu" aria-labelledby="dropDownInstanceType">
                 <a class="dropdown-item" href="#" 
-                    onclick="updateDropdownText('dropDownInstanceTypeText', 't2.micro');
-                    updateDropdownValue('selectedOptionInstanceType', 't2.micro')">t2.micro</a>
+                    onclick="updateComponentTextAndValue('dropDownInstanceTypeText', 'selectedOptionInstanceType' ,'t2.micro')">t2.micro</a>
 
                 <a class="dropdown-item" href="#" 
-                    onclick="updateDropdownText('dropDownInstanceTypeText', 't4g.small');
-                    updateDropdownValue('selectedOptionInstanceType', 't4g.small')">t4g.small</a>
+                    onclick="updateComponentTextAndValue('dropDownInstanceTypeText', 'selectedOptionInstanceType' ,'t4g.small')">t4g.small</a>
 
                 <a class="dropdown-item" href="#" 
-                    onclick="updateDropdownText('dropDownInstanceTypeText', 't3a.small');
-                    updateDropdownValue('selectedOptionInstanceType', 't3a.small')">t3a.small</a>
+                    onclick="updateComponentTextAndValue('dropDownInstanceTypeText', 'selectedOptionInstanceType' ,'t3a.small')">t3a.small</a>
             </div>
         </div>
         <input type="hidden" id="selectedOptionInstanceType" name="selectedOptionInstanceType">
@@ -40,8 +37,7 @@
             </button>
             <div class="dropdown-menu" aria-labelledby="dropDownAmiType">
                 <a class="dropdown-item" id="defaultAmiType" href="#" 
-                    onclick="updateDropdownText('dropDownAmiTypeText', 'ami-0c93065e42589c42b');
-                    updateDropdownValue('selectedOptionAmiType', 'ami-0c93065e42589c42b')">ami-0c93065e42589c42b</a>
+                    onclick="updateComponentTextAndValue('dropDownAmiTypeText', 'selectedOptionAmiType', 'ami-0c93065e42589c42b')">ami-0c93065e42589c42b</a>
             </div>
         </div>
         <input type="hidden" id="selectedOptionAmiType" name="selectedOptionAmiType">
@@ -52,4 +48,13 @@
     <button type="submit" class="btn btn-primary"/>Submit</button>
 
 </form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var defaultAmiTypeElement = document.getElementById('defaultAmiType');
+        if (defaultAmiTypeElement) {
+            defaultAmiTypeElement.click();
+        }
+    });
+</script>
 {% endblock %}
