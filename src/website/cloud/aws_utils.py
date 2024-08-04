@@ -1,37 +1,109 @@
 from boto3 import Session
-from .key_pair import process_key_pair
-from .instance_management import launch_aws_instance, terminate_aws_instance, get_instances_info
-from .security_group import create_security_group, get_security_group_id_for_user
-from .utils import choose_root, get_game_server_details
+from .key_pair import KeyPairManager
+from .instance_management import InstanceManager
+from .security_group import SecurityGroupManager
+from .utils import Utils
 
-# AWS connection objects
-aws_session = Session(profile_name='default')
-ec2_client = aws_session.client('ec2')
+class AWSUtilsManager:
+    def __init__(self):
+        self.aws_session = Session(profile_name='default')
+        self.ec2_client = self.aws_session.client('ec2')
+        self.key_pair_manager = KeyPairManager(self.ec2_client)
+        self.instance_manager = InstanceManager(self.ec2_client)
+        self.security_group_manager = SecurityGroupManager(self.ec2_client)
 
-# Key Pair Operations
-def create_key_pair():
-    return process_key_pair(ec2_client)
+    def create_key_pair(self):
+        """
+        Creates a key pair using the KeyPairManager.
 
-# Instance Management
-def launch_instance(image_id, instance_type):
-    return launch_aws_instance(ec2_client, image_id, instance_type, create_key_pair, get_security_group_id, create_security_group_for_user)
+        Returns:
+            tuple: A tuple containing the key name and the private key material.
+        """
+        return self.key_pair_manager.process_key_pair()
 
-def terminate_instance(server_id):
-    return terminate_aws_instance(ec2_client, server_id)
+    def launch_instance(self, image_id, instance_type):
+        """
+        Launches an EC2 instance with the specified parameters.
 
-def list_instances():
-    return get_instances_info(ec2_client)
+        Parameters:
+            image_id (str): The ID of the AMI.
+            instance_type (str): The type of instance to launch.
 
-# Security Group Management
-def create_security_group_for_user(user_id, user_email):
-    return create_security_group(ec2_client, user_id, user_email)
+        Returns:
+            tuple: A tuple containing instance ID, private key, public IP, and public DNS.
+        """
+        return self.instance_manager.launch_aws_instance(
+            image_id,
+            instance_type,
+            self.create_key_pair,
+            self.get_security_group_id,
+            self.create_security_group_for_user
+        )
 
-def get_security_group_id(user_id, user_email):
-    return get_security_group_id_for_user(ec2_client, user_id, user_email)
+    def terminate_instance(self, server_id):
+        """
+        Terminates the specified EC2 instance.
 
-# Utility Functions
-def get_root_user(image_id):
-    return choose_root(image_id)
+        Parameters:
+            server_id (str): The ID of the instance to terminate.
+        """
+        return self.instance_manager.terminate_aws_instance(server_id)
 
-def get_server_details(game):
-    return get_game_server_details(game)
+    def list_instances(self):
+        """
+        Lists all instances for the current user.
+
+        Returns:
+            list: A list of tuples containing instance details.
+        """
+        return self.instance_manager.get_instances_info()
+
+    def create_security_group_for_user(self, user_id, user_email):
+        """
+        Creates a security group for the specified user.
+
+        Parameters:
+            user_id (int): The ID of the user.
+            user_email (str): The email of the user.
+
+        Returns:
+            str: The ID of the created security group.
+        """
+        return self.security_group_manager.create_security_group(user_id, user_email)
+
+    def get_security_group_id(self, user_id, user_email):
+        """
+        Retrieves the security group ID for the specified user.
+
+        Parameters:
+            user_id (int): The ID of the user.
+            user_email (str): The email of the user.
+
+        Returns:
+            str: The ID of the security group, or None if not found.
+        """
+        return self.security_group_manager.get_security_group_id_for_user(user_id, user_email)
+
+    def get_root_user(self, image_id):
+        """
+        Retrieves the root user for a given AMI ID.
+
+        Parameters:
+            image_id (str): The ID of the AMI.
+
+        Returns:
+            str: The root user for the specified AMI.
+        """
+        return Utils.choose_root(image_id)
+
+    def get_server_details(self, game):
+        """
+        Retrieves the AMI ID and instance type for a specified game server.
+
+        Parameters:
+            game (str): The identifier for the game server.
+
+        Returns:
+            tuple: A tuple containing the AMI ID and instance type.
+        """
+        return Utils.get_game_server_details(game)
