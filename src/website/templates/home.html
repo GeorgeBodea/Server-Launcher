@@ -3,7 +3,7 @@
 {% block title %} Custom Server Launcher {% endblock %}
 
 {% block content %}
-<h1 align="center" > Launch a custom server </h1>
+<h1 class="extra-space-top" align="center" > Launch a custom server </h1>
 
 <form method="POST" onsubmit="return validateForm()">
 
@@ -90,9 +90,10 @@
             return false;
         }
 
-        // Check if each tool has a corresponding version
+        // Check if each tool has a corresponding version and if no duplicate tools are selected
         var componentsContainer = document.getElementById('componentsContainer');
         var componentCount = componentsContainer.childElementCount;
+        var toolSet = new Set();
 
         for (var i = 0; i < componentCount; i++) {
             var tool = document.getElementById(`selectedOptionTool${i}`).value;
@@ -102,10 +103,19 @@
                 alert(`Please select a version for the tool: ${tool}`);
                 return false;
             }
+
+            if (tool) {
+                if (toolSet.has(tool)) {
+                    alert(`The tool ${tool} has been selected multiple times. Please select only one version of each tool.`);
+                    return false;
+                } else {
+                    toolSet.add(tool);
+                }
+            }
         }
 
         return true; // Allow form submission
-        }
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
         var defaultAmiTypeElement = document.getElementById('defaultAmiType');

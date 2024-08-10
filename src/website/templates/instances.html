@@ -3,7 +3,7 @@
 {% block title %} Instances details {% endblock %}
 
 {% block content %}
-<h1 align="center" > Instances details </h1>
+<h1 class="extra-space-top" align="center" > Instances details </h1>
 <h2>List of active instances</h2>
 
 {% set terminable_instances = instances_info | selectattr('3', 'in', ['pending', 'running', 'stopping', 'stopped']) | list %}
