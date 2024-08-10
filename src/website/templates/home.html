@@ -5,7 +5,7 @@
 {% block content %}
 <h1 align="center" > Launch a custom server </h1>
 
-<form method="POST">
+<form method="POST" onsubmit="return validateForm()">
 
     <div class="form-group">
         <label for="dropDownInstanceType">Instance Type</label>
@@ -43,18 +43,189 @@
         <input type="hidden" id="selectedOptionAmiType" name="selectedOptionAmiType">
     </div>
 
-    </br>
+    <br>
+
+    <div id="componentsContainer"></div>
+
+    <button type="button" class="btn btn-secondary" onclick="addComponentCard()">Add a component to the server</button>
+
+    <br>
+
+    <br>
+
+    <br>
 
     <button type="submit" class="btn btn-primary"/>Submit</button>
 
 </form>
 
+<style>
+    #componentsContainer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px; /* Space between cards */
+    }
+
+    #componentsContainer .card {
+        flex: 1 1 auto;
+        max-width: 300px;
+    }
+
+</style>
+
 <script>
+
+    function validateForm() {
+        // Check if Instance Type is selected
+        var instanceType = document.getElementById('selectedOptionInstanceType').value;
+        if (!instanceType) {
+            alert("Please select an Instance Type.");
+            return false;
+        }
+
+        // Check if AMI is selected
+        var amiType = document.getElementById('selectedOptionAmiType').value;
+        if (!amiType) {
+            alert("Please select an AMI.");
+            return false;
+        }
+
+        // Check if each tool has a corresponding version
+        var componentsContainer = document.getElementById('componentsContainer');
+        var componentCount = componentsContainer.childElementCount;
+
+        for (var i = 0; i < componentCount; i++) {
+            var tool = document.getElementById(`selectedOptionTool${i}`).value;
+            var version = document.getElementById(`selectedOptionVersion${i}`).value;
+
+            if (tool && !version) {
+                alert(`Please select a version for the tool: ${tool}`);
+                return false;
+            }
+        }
+
+        return true; // Allow form submission
+        }
+
     document.addEventListener('DOMContentLoaded', function() {
         var defaultAmiTypeElement = document.getElementById('defaultAmiType');
         if (defaultAmiTypeElement) {
             defaultAmiTypeElement.click();
         }
     });
+
+    function addComponentCard() {
+    var componentsContainer = document.getElementById('componentsContainer');
+    var componentCount = componentsContainer.childElementCount;
+
+    var newCardHtml = `
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="dropDownComponentType${componentCount}">Component Type</label>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropDownComponentTypeText${componentCount}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Select an option
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropDownComponentType${componentCount}">
+                            <a class="dropdown-item" href="#" 
+                                onclick="selectComponentType(${componentCount}, 'Database')">Database</a>
+                            <a class="dropdown-item" href="#" 
+                                onclick="selectComponentType(${componentCount}, 'Programming Language')">Programming Language</a>
+                        </div>
+                    </div>
+                    <input type="hidden" id="selectedOptionComponentType${componentCount}" name="selectedOptionComponentType${componentCount}">
+                </div>
+
+                <div class="form-group">
+                    <label for="dropDownTool${componentCount}">Tool</label>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropDownToolText${componentCount}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled>
+                            Select a tool
+                        </button>
+                        <div class="dropdown-menu" id="dropDownToolMenu${componentCount}">
+                            <!-- Tool options will be populated dynamically with calls to selectTool() -->
+                        </div>
+                    </div>
+                    <input type="hidden" id="selectedOptionTool${componentCount}" name="selectedOptionTool${componentCount}">
+                </div>
+
+                <div class="form-group">
+                    <label for="dropDownVersion${componentCount}">Version</label>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropDownVersionText${componentCount}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled>
+                            Select a version
+                        </button>
+                        <div class="dropdown-menu" id="dropDownVersionMenu${componentCount}">
+                            <!-- Version options will be populated dynamically -->
+                        </div>
+                    </div>
+                    <input type="hidden" id="selectedOptionVersion${componentCount}" name="selectedOptionVersion${componentCount}">
+                </div>
+            </div>
+        </div>
+    `;
+
+        componentsContainer.insertAdjacentHTML('beforeend', newCardHtml);
+    }
+
+    function selectComponentType(index, type) {
+        updateComponentTextAndValue(`dropDownComponentTypeText${index}`, `selectedOptionComponentType${index}`, type);
+        updateDropdownOptions(index, 'Tool', getTools(type));
+        resetDropdown(index, 'Version'); // Disable and clear the version dropdown until tool is selected
+    }
+
+    function selectTool(index, tool) {
+        updateComponentTextAndValue(`dropDownToolText${index}`, `selectedOptionTool${index}`, tool);
+        updateDropdownOptions(index, 'Version', getVersions(tool)); // Populate and enable the version dropdown
+    }
+
+    function updateDropdownOptions(index, dropdownType, options) {
+        var textElement = document.getElementById(`dropDown${dropdownType}Text${index}`);
+        var menuElement = document.getElementById(`dropDown${dropdownType}Menu${index}`);
+
+        textElement.innerText = `Select a ${dropdownType.toLowerCase()}`;
+        menuElement.innerHTML = '';
+
+        if (options.length > 0) {
+            options.forEach(option => {
+                menuElement.insertAdjacentHTML('beforeend', `
+                    <a class="dropdown-item" href="#" 
+                        onclick="${dropdownType === 'Tool' ? `selectTool(${index}, '${option}')` : `updateComponentTextAndValue('dropDown${dropdownType}Text${index}', 'selectedOption${dropdownType}${index}', '${option}')`}">${option}</a>
+                `);
+            });
+            textElement.removeAttribute('disabled'); // Enable dropdown by removing the disabled attribute
+            textElement.classList.remove('disabled'); // Remove the 'disabled' class
+        } else {
+            textElement.setAttribute('disabled', 'true'); // Disable dropdown if no options are available
+        }
+    }
+
+    function resetDropdown(index, dropdownType) {
+        var textElement = document.getElementById(`dropDown${dropdownType}Text${index}`);
+        var menuElement = document.getElementById(`dropDown${dropdownType}Menu${index}`);
+
+        textElement.innerText = `Select a ${dropdownType.toLowerCase()}`;
+        textElement.setAttribute('disabled', 'true'); // Disable dropdown
+        menuElement.innerHTML = ''; // Clear options
+    }
+
+    function getTools(type) {
+        const tools = {
+            'Database': ['MySQL', 'MariaDB'],
+            'Programming Language': ['Python', 'Java']
+        };
+        return tools[type] || [];
+    }
+
+    function getVersions(tool) {
+        const versions = {
+            'MySQL': ['5.7', '8.0'],
+            'MariaDB': ['10.3', '10.4'],
+            'Python': ['3.8', '3.9'],
+            'Java': ['8', '11']
+        };
+        return versions[tool] || [];
+    }
 </script>
 {% endblock %}

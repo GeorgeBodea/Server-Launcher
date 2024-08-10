@@ -6,27 +6,55 @@ class ViewController:
     views = Blueprint('views', __name__)
     aws_utils = AWSUtilsManager()
 
+    @staticmethod
+    def extract_tool_selections(form_data):
+        tool_selections = []
+        tool_versions = {}
+        component_count = len([key for key in form_data.keys() if 'selectedOptionTool' in key])
+
+        for i in range(component_count):
+            tool = form_data.get(f'selectedOptionTool{i}')
+            version = form_data.get(f'selectedOptionVersion{i}')
+            if tool and version:
+                if tool in tool_versions:
+                    tool_versions[tool].append(version)
+                else:
+                    tool_versions[tool] = [version]
+    
+        single_version_tools = ['MySQL', 'MariaDB']  # Add other single-version tools here
+        for tool in single_version_tools:
+            if tool in tool_versions and len(tool_versions[tool]) > 1:
+                flash(f"Multiple versions selected for {tool}. Only one version is recommended.", category="error")
+                return []  # Return an empty list to indicate an error
+
+        
+        return tool_selections
+
     @views.route('/', methods=['GET', 'POST'])
     @login_required
     def home():
         if request.method == "POST":
             instance_type = request.form.get('selectedOptionInstanceType')
             image_id = request.form.get('selectedOptionAmiType')
-            root_user = ViewController.aws_utils.get_root_user(image_id)
+            tool_selections = ViewController.extract_tool_selections(request.form)
+
+            root_user = ViewController.aws_utils.get_root_user(image_id)          
 
             if not instance_type:
                 flash("Please select an instance type.", category="error")
             elif not image_id:
                 flash("Please select an AMI type.", category="error")
             else:
+                user_data_script = render_template('user_data_setup/user_data.sh.j2', tool_selections=tool_selections)
+
                 instance_id, private_ssh_key, public_ip, public_dns = ViewController.aws_utils.launch_instance(image_id, instance_type)
                 return render_template('connection.html',
-                                       user=current_user,
-                                       aws_instance_id=instance_id,
-                                       private_ssh_key=private_ssh_key,
-                                       public_ip=public_ip,
-                                       public_dns=public_dns,
-                                       root=root_user)
+                                    user=current_user,
+                                    aws_instance_id=instance_id,
+                                    private_ssh_key=private_ssh_key,
+                                    public_ip=public_ip,
+                                    public_dns=public_dns,
+                                    root=root_user)
         
         return render_template('home.html', user=current_user)
 
