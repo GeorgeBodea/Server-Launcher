@@ -141,14 +141,11 @@ class InstanceManager:
                 if key_name:
                     try:
                         self.ec2_client.delete_key_pair(KeyName=key_name)
-                        print('Deleted key pair successfully.')
                     except ClientError:
                         print('Failed to delete key pair.')
 
                 self.ec2_client.terminate_instances(InstanceIds=[server_id])
-                print('Deleted instance successfully.')
                 flash('Termination of instance has been successful.')
 
             except Exception as e:
                 flash('Termination of instance has failed. Error occurred.')
-                print('An error occurred at termination of an instance: ', e)
