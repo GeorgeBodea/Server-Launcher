@@ -1,7 +1,7 @@
 from flask_login import current_user
 from time import sleep
 from flask import flash
-from boto3 import resource
+from boto3 import resource, client
 from botocore.exceptions import ClientError
 
 class InstanceManager:
@@ -153,3 +153,38 @@ class InstanceManager:
 
             except Exception as e:
                 flash('Termination of instance has failed. Error occurred.')
+
+    def stop_instance(self, instance_id):
+        """
+        Stop an EC2 instance.
+
+        This method attempts to stop the specified EC2 instance using the provided EC2 client.
+
+        :param instance_id: The ID of the instance to stop.
+        :return: True if the instance was successfully stopped, False otherwise.
+        """
+        try:
+            self.ec2_client.stop_instances(InstanceIds=[instance_id])
+            return True
+        except Exception as e:
+            flash(f'Error stopping instance {instance_id}: {str(e)}', category='error')
+            return False
+
+    def start_instance(self, instance_id):
+        """
+        Start an EC2 instance.
+
+        This method attempts to start the specified EC2 instance using the provided EC2 client.
+
+        :param instance_id: The ID of the instance to start.
+        :return: True if the instance was successfully started, False otherwise.
+        """
+        try:
+            self.ec2_client.start_instances(InstanceIds=[instance_id])
+            return True
+        except Exception as e:
+            if 'VcpuLimitExceeded' in str(e):
+                flash('Error starting instance: VcpuLimitExceeded', category='error')
+            else:
+                flash(f'Unexpected error: {str(e)}', category='error')
+            return False

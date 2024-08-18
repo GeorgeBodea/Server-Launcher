@@ -25,6 +25,12 @@
                             <p class="card-text"><strong>Current state:</strong> {{ state }}</p>
                             <input type="hidden" name="server_id" value="{{ server_id }}">
                             <button type="submit" id="button-server-{{ server_id }}" class="btn btn-danger">Delete</button>
+            
+                            {% if state == 'running' %}
+                                <button type="button" id="stop-start-{{ server_id }}" class="btn btn-primary" onclick="toggleInstance('{{ server_id }}', 'stop')">Stop</button>
+                            {% elif state == 'stopped' %}
+                                <button type="button" id="stop-start-{{ server_id }}" class="btn btn-success" onclick="toggleInstance('{{ server_id }}', 'start')">Start</button>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -52,5 +58,31 @@
         {% endfor %}
     </div>
 {% endif %}
+
+
+<script>
+    function toggleInstance(serverId, action) {
+        fetch(`/toggle_instance`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'server_id': serverId,
+                'action': action
+            }),
+        }).then(response => {
+            return response.json();
+        }).then(data => {
+            if (data.success) {
+                // Refresh the page after successful action
+                window.location.reload();
+            } else {
+                console.error('Action failed');
+            }
+        }).catch(error => console.error('Error:', error));
+    }
+</script>
+    
 
 {% endblock %}

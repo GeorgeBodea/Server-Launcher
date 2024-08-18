@@ -1,6 +1,6 @@
 from boto3 import Session
 from .key_pair import KeyPairManager
-from .instance_management import InstanceManager
+from .instance_manager import InstanceManager
 from .security_group import SecurityGroupManager
 from .utils import Utils
 from .user_data import UserDataManager
@@ -91,6 +91,31 @@ class AWSUtilsManager:
         """
         return self.security_group_manager.get_security_group_id_for_user(user_id, user_email)
 
+    def stop_instance(self, server_id):
+        """
+        Stops an EC2 instance.
+
+        Parameters:
+            server_id (str): The ID of the instance to stop.
+
+        Returns:
+            boolean: A boolean value stating if the stopping succeded or not.
+        """
+        return self.instance_manager.stop_instance(server_id)
+
+
+    def start_instance(self, server_id):
+        """
+        Starts an EC2 instance.
+
+        Parameters:
+            server_id (str): The ID of the instance to start.
+
+        Returns:
+            boolean: A boolean value stating if the starting succeded or not.
+        """
+        return self.instance_manager.start_instance(server_id)
+    
     def get_root_user(self, image_id):
         """
         Retrieves the root user for a given AMI ID.
