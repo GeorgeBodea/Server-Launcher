@@ -46,7 +46,7 @@ class InstanceManager:
         instances_info = [extract_info_from_instance(instance) for instance in instances]
         return instances_info
 
-    def process_ec2_configuration(self, image_id, instance_type, key_name, user_id, email, security_group_id):
+    def process_ec2_configuration(self, image_id, instance_type, key_name, user_id, email, security_group_id, user_data_script):
         """
         Configures and launches an EC2 instance with the specified parameters.
 
@@ -57,10 +57,12 @@ class InstanceManager:
             user_id (int): The ID of the user.
             email (str): The email of the user.
             security_group_id (str): The ID of the security group.
+            user_data_script (str): The User Data script to run on instance launch.
 
         Returns:
             dict: The response from the run_instances API call.
         """
+
         response = self.ec2_client.run_instances(
             ImageId=image_id,
             InstanceType=instance_type,
@@ -68,6 +70,7 @@ class InstanceManager:
             MinCount=1,
             MaxCount=1,
             SecurityGroupIds=[security_group_id],
+            UserData=user_data_script,
             TagSpecifications=[
                 {
                     'ResourceType': 'instance',
@@ -80,7 +83,7 @@ class InstanceManager:
         )
         return response
 
-    def launch_aws_instance(self, image_id, instance_type, process_key_pair, get_security_group_id_for_user, create_security_group):
+    def launch_aws_instance(self, image_id, instance_type, process_key_pair, get_security_group_id_for_user, create_security_group, user_data_script=""):
         """
         Launches an AWS EC2 instance with specified parameters.
 
@@ -90,6 +93,7 @@ class InstanceManager:
             process_key_pair (callable): Function to process the key pair.
             get_security_group_id_for_user (callable): Function to get the security group ID for the user.
             create_security_group (callable): Function to create a security group.
+            user_data_script (str): The User Data script to run on instance launch.
 
         Returns:
             tuple: A tuple containing instance ID, private key, public IP, and public DNS.
@@ -101,7 +105,7 @@ class InstanceManager:
             if not security_group_id:
                 security_group_id = create_security_group(current_user.id, current_user.email)
 
-            response = self.process_ec2_configuration(image_id, instance_type, key_name, current_user.id, current_user.email, security_group_id)
+            response = self.process_ec2_configuration(image_id, instance_type, key_name, current_user.id, current_user.email, security_group_id, user_data_script)
             instance_id = response['Instances'][0]['InstanceId']
 
             if instance_id and private_key:

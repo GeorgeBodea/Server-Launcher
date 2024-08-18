@@ -3,6 +3,7 @@ from .key_pair import KeyPairManager
 from .instance_management import InstanceManager
 from .security_group import SecurityGroupManager
 from .utils import Utils
+from .user_data import UserDataManager
 
 class AWSUtilsManager:
     def __init__(self):
@@ -11,6 +12,7 @@ class AWSUtilsManager:
         self.key_pair_manager = KeyPairManager(self.ec2_client)
         self.instance_manager = InstanceManager(self.ec2_client)
         self.security_group_manager = SecurityGroupManager(self.ec2_client)
+        self.user_data_manager = UserDataManager() 
 
     def create_key_pair(self):
         """
@@ -21,23 +23,28 @@ class AWSUtilsManager:
         """
         return self.key_pair_manager.process_key_pair()
 
-    def launch_instance(self, image_id, instance_type):
+    def launch_instance(self, image_id, instance_type, tool_selections):
         """
         Launches an EC2 instance with the specified parameters.
 
         Parameters:
             image_id (str): The ID of the AMI.
             instance_type (str): The type of instance to launch.
+            tool_selections (list): The selected tools and versions.
 
         Returns:
             tuple: A tuple containing instance ID, private key, public IP, and public DNS.
         """
+        # Generate the User Data script based on the tool selections
+        user_data_script = self.user_data_manager.generate_user_data_script(tool_selections)
+
         return self.instance_manager.launch_aws_instance(
             image_id,
             instance_type,
             self.create_key_pair,
             self.get_security_group_id,
-            self.create_security_group_for_user
+            self.create_security_group_for_user,
+            user_data_script=user_data_script 
         )
 
     def terminate_instance(self, server_id):

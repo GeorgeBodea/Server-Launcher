@@ -10,8 +10,9 @@ class Utils:
         Returns:
             str: The root user for the specified AMI.
         """
-        if image_id == 'ami-0c93065e42589c42b':
-            return 'alpine'
+        print(image_id)
+        if image_id == 'ami-0a2202cf4c36161a1':
+            return 'ec2-user'
         elif image_id == 'ami-0ea939ebce565da44':
             return 'ubuntu'
         else:

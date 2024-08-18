@@ -1,0 +1,13 @@
+#!/bin/sh
+# This script will be run as root on the EC2 instance
+
+# Update package lists
+apt-get update -y
+
+{% for tool, versions in tool_selections.items() %}
+    {% for version in versions %}
+        {% if tool == 'Python' %}
+            {% include '/python_install.sh.j2' %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}

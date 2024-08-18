@@ -8,27 +8,27 @@ class ViewController:
 
     @staticmethod
     def extract_tool_selections(form_data):
-        tool_selections = []
-        tool_versions = {}
-        component_count = len([key for key in form_data.keys() if 'selectedOptionTool' in key])
+        tool_versions_dict = dict()
+        component_count = len([key for key in form_data.keys() if key.startswith('selectedOptionTool')])
 
         for i in range(component_count):
             tool = form_data.get(f'selectedOptionTool{i}')
             version = form_data.get(f'selectedOptionVersion{i}')
-            if tool and version:
-                if tool in tool_versions:
-                    tool_versions[tool].append(version)
-                else:
-                    tool_versions[tool] = [version]
-    
-        single_version_tools = ['MySQL', 'MariaDB']  # Add other single-version tools here
-        for tool in single_version_tools:
-            if tool in tool_versions and len(tool_versions[tool]) > 1:
-                flash(f"Multiple versions selected for {tool}. Only one version is recommended.", category="error")
-                return []  # Return an empty list to indicate an error
 
-        
-        return tool_selections
+            if tool and version:
+                if tool in tool_versions_dict:
+                    tool_versions_dict[tool].append(version)
+                else:
+                    tool_versions_dict[tool] = [version]
+    
+        single_version_tools = ['MySQL', 'MariaDB']
+        for tool in single_version_tools:
+            if tool in tool_versions_dict and len(tool_versions_dict[tool]) > 1:
+
+                flash(f"Multiple versions selected for {tool}. Only one version is recommended.", category="error")
+                return [] 
+
+        return tool_versions_dict
 
     @views.route('/', methods=['GET', 'POST'])
     @login_required
@@ -45,9 +45,8 @@ class ViewController:
             elif not image_id:
                 flash("Please select an AMI type.", category="error")
             else:
-                user_data_script = render_template('user_data_setup/user_data.sh.j2', tool_selections=tool_selections)
 
-                instance_id, private_ssh_key, public_ip, public_dns = ViewController.aws_utils.launch_instance(image_id, instance_type)
+                instance_id, private_ssh_key, public_ip, public_dns = ViewController.aws_utils.launch_instance(image_id, instance_type, tool_selections)
                 return render_template('connection.html',
                                     user=current_user,
                                     aws_instance_id=instance_id,
@@ -70,14 +69,16 @@ class ViewController:
                 image_id, instance_type = ViewController.aws_utils.get_server_details(game)
                 root_user = ViewController.aws_utils.get_root_user(image_id)
 
-                instance_id, private_ssh_key, public_ip, public_dns = ViewController.aws_utils.launch_instance(image_id, instance_type)
+                print(root_user)
+
+                instance_id, private_ssh_key, public_ip, public_dns = ViewController.aws_utils.launch_instance(image_id, instance_type, tool_selections=[])
                 return render_template('connection.html',
                                        user=current_user,
                                        aws_instance_id=instance_id,
                                        private_ssh_key=private_ssh_key,
                                        public_ip=public_ip,
                                        public_dns=public_dns,
-                                       root_user=root_user)
+                                       root=root_user)
         
         return render_template('game_servers.html', user=current_user)
 

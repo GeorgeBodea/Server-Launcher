@@ -92,6 +92,7 @@
         }
 
         function updateComponentTextAndValue(idDropdownText, idDropdown, selectedOption) {
+            event.preventDefault();
             document.getElementById(idDropdownText).innerText = selectedOption;
             document.getElementById(idDropdown).value = selectedOption;
         }

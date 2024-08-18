@@ -1,0 +1,37 @@
+#!/bin/bash
+# Installing Python {{ version }} from source
+
+# Log the start of the Python installation
+echo "Starting installation of Python {{ version }}" >> /var/log/user_data.log
+
+# Install the necessary development tools and dependencies
+sudo yum groupinstall -y "Development Tools" >> /var/log/user_data.log 2>&1
+sudo yum install -y gcc openssl-devel bzip2-devel libffi-devel zlib-devel wget make >> /var/log/user_data.log 2>&1
+
+# Download and install the specified version of Python
+cd /usr/src
+wget https://www.python.org/ftp/python/{{ version }}/Python-{{ version }}.tgz >> /var/log/user_data.log 2>&1
+tar xzf Python-{{ version }}.tgz >> /var/log/user_data.log 2>&1
+cd Python-{{ version }}
+./configure --enable-optimizations >> /var/log/user_data.log 2>&1
+make altinstall >> /var/log/user_data.log 2>&1
+
+# Verify the Python installation
+/usr/local/bin/python{{ version[:3] }} --version >> /var/log/user_data.log 2>&1
+
+# Update alternatives to set the installed Python version as the default for `python3`
+sudo alternatives --install /usr/bin/python3 python3 /usr/local/bin/python{{ version[:3] }} 1
+sudo alternatives --set python3 /usr/local/bin/python{{ version[:3] }}
+
+# Optionally, set the default `python` command to point to the installed version
+sudo alternatives --install /usr/bin/python python /usr/local/bin/python{{ version[:3] }} 1
+sudo alternatives --set python /usr/local/bin/python{{ version[:3] }}
+
+# Verify the `python` command points to the installed version
+python --version >> /var/log/user_data.log 2>&1
+
+# Clean up
+rm -f /usr/src/Python-{{ version }}.tgz
+
+# Log the completion of the Python installation
+echo "Python {{ version }} installation completed" >> /var/log/user_data.log

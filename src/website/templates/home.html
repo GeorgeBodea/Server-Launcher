@@ -18,10 +18,10 @@
                     onclick="updateComponentTextAndValue('dropDownInstanceTypeText', 'selectedOptionInstanceType' ,'t2.micro')">t2.micro</a>
 
                 <a class="dropdown-item" href="#" 
-                    onclick="updateComponentTextAndValue('dropDownInstanceTypeText', 'selectedOptionInstanceType' ,'t4g.small')">t4g.small</a>
+                    onclick="updateComponentTextAndValue('dropDownInstanceTypeText', 'selectedOptionInstanceType' ,'r6i.large')">r6i.large</a>
 
                 <a class="dropdown-item" href="#" 
-                    onclick="updateComponentTextAndValue('dropDownInstanceTypeText', 'selectedOptionInstanceType' ,'t3a.small')">t3a.small</a>
+                    onclick="updateComponentTextAndValue('dropDownInstanceTypeText', 'selectedOptionInstanceType' ,'c5.2xlarge')">c5.2xlarge</a>
             </div>
         </div>
         <input type="hidden" id="selectedOptionInstanceType" name="selectedOptionInstanceType">
@@ -37,7 +37,7 @@
             </button>
             <div class="dropdown-menu" aria-labelledby="dropDownAmiType">
                 <a class="dropdown-item" id="defaultAmiType" href="#" 
-                    onclick="updateComponentTextAndValue('dropDownAmiTypeText', 'selectedOptionAmiType', 'ami-0c93065e42589c42b')">ami-0c93065e42589c42b</a>
+                    onclick="updateComponentTextAndValue('dropDownAmiTypeText', 'selectedOptionAmiType', 'ami-0a2202cf4c36161a1')">ami-0a2202cf4c36161a1</a>
             </div>
         </div>
         <input type="hidden" id="selectedOptionAmiType" name="selectedOptionAmiType">
@@ -222,19 +222,17 @@
 
     function getTools(type) {
         const tools = {
-            'Database': ['MySQL', 'MariaDB'],
-            'Programming Language': ['Python', 'Java']
+            'Database': [],
+            'Programming Language': ['Python']
         };
         return tools[type] || [];
     }
 
     function getVersions(tool) {
         const versions = {
-            'MySQL': ['5.7', '8.0'],
-            'MariaDB': ['10.3', '10.4'],
-            'Python': ['3.8', '3.9'],
-            'Java': ['8', '11']
+            'Python': ['3.8.19', '3.9.19'],
         };
+        
         return versions[tool] || [];
     }
 </script>

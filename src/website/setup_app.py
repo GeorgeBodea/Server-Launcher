@@ -1,10 +1,11 @@
 from flask import Flask
-from .views import ViewController  # Assuming ViewController contains the views Blueprint
-from .auth import AuthController  # Assuming AuthController contains the auth Blueprint
+from .views import ViewController
+from .auth import AuthController
 from .models import db, User
 from pathlib import Path
 from secrets import token_hex
 from flask_login import LoginManager
+from jinja2 import ChoiceLoader, FileSystemLoader
 
 class AppSetup:
     def __init__(self):
@@ -21,9 +22,16 @@ class AppSetup:
         app.config.from_pyfile(self.db_configs_path)
         self.create_database(app)
         self.handle_login(app)
+        self.set_jinja2_paths(app)
         app.register_blueprint(ViewController.views, url_prefix='/')
         app.register_blueprint(AuthController.auth, url_prefix='/')
         return app
+    
+    def set_jinja2_paths(self, app):
+        app.jinja_loader = ChoiceLoader([
+            FileSystemLoader(str(self.current_folder / 'templates')),  # Path for the main templates directory
+            FileSystemLoader(str(self.current_folder / 'cloud/user_data_setup')),  # Path for user_data_setup
+        ])
 
     def handle_login(self, app):
         login_manager = LoginManager()
@@ -37,7 +45,6 @@ class AppSetup:
     def generate_secret_configs(self):
         secret_token_hex = token_hex()
         secret_key = f"SECRET_KEY='{str(secret_token_hex)}'"
-        # Optionally, you can save this content to a file if needed
         return secret_key  
 
     def ensure_database_config_presence(self):
