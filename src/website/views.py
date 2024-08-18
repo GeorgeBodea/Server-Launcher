@@ -44,16 +44,17 @@ class ViewController:
             elif not image_id:
                 flash("Please select an AMI type.", category="error")
             else:
-
                 instance_id, private_ssh_key, public_ip, public_dns = ViewController.aws_utils.launch_instance(image_id, instance_type, tool_selections)
-                return render_template('connection.html',
-                                    user=current_user,
-                                    aws_instance_id=instance_id,
-                                    private_ssh_key=private_ssh_key,
-                                    public_ip=public_ip,
-                                    public_dns=public_dns,
-                                    root=root_user)
-        
+                
+                if instance_id:
+                    return render_template('connection.html',
+                                        user=current_user,
+                                        aws_instance_id=instance_id,
+                                        private_ssh_key=private_ssh_key,
+                                        public_ip=public_ip,
+                                        public_dns=public_dns,
+                                        root=root_user)
+            
         return render_template('home.html', user=current_user)
 
     @views.route('/launch_game_server', methods=['GET', 'POST'])
@@ -61,21 +62,22 @@ class ViewController:
     def launch_game_server():
         if request.method == "POST":
             game = request.form.get('selectedGame')
+            image_id, instance_type = ViewController.aws_utils.get_server_details(game)
+            root_user = ViewController.aws_utils.get_root_user(image_id)
 
             if not game:
                 flash("Please select a game server type.", category="error")
             else:
-                image_id, instance_type = ViewController.aws_utils.get_server_details(game)
-                root_user = ViewController.aws_utils.get_root_user(image_id)
                 instance_id, private_ssh_key, public_ip, public_dns = ViewController.aws_utils.launch_instance(image_id, instance_type, tool_selections=[])
                 
-                return render_template('connection.html',
-                                       user=current_user,
-                                       aws_instance_id=instance_id,
-                                       private_ssh_key=private_ssh_key,
-                                       public_ip=public_ip,
-                                       public_dns=public_dns,
-                                       root=root_user)
+                if instance_id:
+                    return render_template('connection.html',
+                                        user=current_user,
+                                        aws_instance_id=instance_id,
+                                        private_ssh_key=private_ssh_key,
+                                        public_ip=public_ip,
+                                        public_dns=public_dns,
+                                        root=root_user)
         
         return render_template('game_servers.html', user=current_user)
 

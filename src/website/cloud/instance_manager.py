@@ -1,7 +1,7 @@
 from flask_login import current_user
 from time import sleep
 from flask import flash
-from boto3 import resource, client
+from boto3 import resource
 from botocore.exceptions import ClientError
 
 class InstanceManager:
@@ -126,9 +126,12 @@ class InstanceManager:
             else:
                 flash('Error creating an instance', category='error')
                 return None, None, None, None
+        except ClientError as e:
+            flash(f"An error occurred during instance launch: too many VCPUs. Please contact the administrator of the website.", category="error")
+            return None, None, None, None
         except Exception as e:
-            flash('Error occurred during instance launch.', category='error')
-            print('An error occurred at launch of an instance: ', e)
+            flash(f"An unexpected error occurred: {str(e)}", category="error")
+            return None, None, None, None
 
     def terminate_aws_instance(self, server_id):
         """
