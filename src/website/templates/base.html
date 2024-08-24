@@ -91,10 +91,12 @@
             document.getElementById(idDropdown).value = selectedOption;
         }
 
-        function updateComponentTextAndValue(idDropdownText, idDropdown, selectedOption) {
+        function updateComponentTextAndValue(idDropdownText, idDropdown, value, text = '') {
             event.preventDefault();
-            document.getElementById(idDropdownText).innerText = selectedOption;
-            document.getElementById(idDropdown).value = selectedOption;
+            document.getElementById(idDropdown).value = value;
+            if (text !== '') {
+                document.getElementById(idDropdownText).innerText = text;
+            }
         }
 
       </script>

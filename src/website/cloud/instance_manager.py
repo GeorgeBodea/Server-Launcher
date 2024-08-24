@@ -127,7 +127,7 @@ class InstanceManager:
                 flash('Error creating an instance', category='error')
                 return None, None, None, None
         except ClientError as e:
-            flash(f"An error occurred during instance launch: too many VCPUs. Please contact the administrator of the website.", category="error")
+            flash(f"{e}", category="error")
             return None, None, None, None
         except Exception as e:
             flash(f"An unexpected error occurred: {str(e)}", category="error")
