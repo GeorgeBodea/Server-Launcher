@@ -22,6 +22,15 @@
             .extra-space-top {
                 margin-top: 20px; /* Adjust this value as needed */
             }
+            .footer {
+                background-color: #f8f9fa;
+                padding: 20px 0;
+                text-align: center;
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+            }
+        </style>
         </style>
 
         <title> {% block title %} Title {% endblock %} </title>
@@ -80,6 +89,12 @@
       <div class="container extra-space-bottom">
       {% block content %} {% endblock %}
       </div>
+
+      <footer class="footer">
+        <div class="container">
+            <span class="text-muted">© 2024 Server Launcher Project. All rights reserved.</span>
+        </div>
+      </footer>
 
       <script>
         
