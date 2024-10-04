@@ -49,6 +49,10 @@ class AppSetup:
 
     def ensure_database_config_presence(self):
         if not self.database_path.exists():
+            # Ensure the configs folder exists
+            if not self.configs_folder.exists():
+                self.configs_folder.mkdir(parents=True, exist_ok=True)
+
             file_content = self.generate_database_config()
             with open(self.db_configs_path, 'w') as file_config:
                 file_config.write(file_content)
@@ -62,6 +66,9 @@ class AppSetup:
     def create_database(self, app):
         db.init_app(app)
         if not self.database_path.exists():
+            # Ensure the database folder exists
+            self.database_path.parent.mkdir(parents=True, exist_ok=True)
+
             with app.app_context():
                 print("Database does not exist. Creating a new database.")
                 db.create_all()
